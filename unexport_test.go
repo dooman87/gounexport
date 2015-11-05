@@ -57,7 +57,7 @@ func getDefinitionsToHide(pkg string, expectedLen int, t *testing.T) []*gounexpo
 func getDefinitionsToHideWithExclusions(pkg string, expectedLen int, excludes []*regexp.Regexp, t *testing.T) []*gounexport.Definition {
 	_, fset, info := parsePackage(pkg, t)
 	defs := gounexport.GetDefinitions(info, fset)
-	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, excludes)
+	unusedDefs := gounexport.FindUnusedDefinitions(pkg, defs, excludes)
 
 	if expectedLen > 0 && len(unusedDefs) != expectedLen {
 		t.Errorf("expected %d unused exported definitions, but found %d", expectedLen, len(unusedDefs))
@@ -73,7 +73,7 @@ func TestGetDefinitionsToHideThis(t *testing.T) {
 
 	_, fset, info := parsePackage(pkg, t)
 	defs := gounexport.GetDefinitions(info, fset)
-	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, excludes)
+	unusedDefs := gounexport.FindUnusedDefinitions(pkg, defs, excludes)
 
 	log.Print("<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	for _, d := range unusedDefs {
@@ -117,7 +117,7 @@ func Example() {
 	//Analyze info and extract all definitions with usages.
 	defs := gounexport.GetDefinitions(&info, fset)
 	//Find all definitions that not used
-	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, excludes)
+	unusedDefs := gounexport.FindUnusedDefinitions(pkg, defs, excludes)
 	//Print all unused definition to stdout.
 	for _, d := range unusedDefs {
 		util.Info("DEFINITION %s", d.Name)
@@ -141,7 +141,7 @@ func assertDef(name string, defs []*gounexport.Definition, t *testing.T) {
 func TestUnexport(t *testing.T) {
 	_, fset, info := parsePackage(pkg+"/testrename", t)
 	defs := gounexport.GetDefinitions(info, fset)
-	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, nil)
+	unusedDefs := gounexport.FindUnusedDefinitions(pkg, defs, nil)
 
 	renamesCount := make(map[string]int)
 	renameFunc := func(file string, offset int, source string, target string) error {

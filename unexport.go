@@ -9,13 +9,13 @@ import (
 	"github.com/dooman87/gounexport/util"
 )
 
-//GetDefinitionsToHide returns list of defenitions that could be
+//FindUnusedDefinitions returns list of definitions that could be
 //moved to private e.g. renamed. Criteria for renaming:
 // - Definition should be exported
 // - Definition should be in target package
 // - Definition is not implementing external interfaces
 // - Definition is not used in external packages
-func GetDefinitionsToHide(pkg string, defs map[string]*Definition, excludes []*regexp.Regexp) []*Definition {
+func FindUnusedDefinitions(pkg string, defs map[string]*Definition, excludes []*regexp.Regexp) []*Definition {
 	var unused []*Definition
 	for _, def := range defs {
 		if !def.Exported {
