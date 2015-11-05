@@ -1,8 +1,8 @@
 package gounexport_test
 
 import (
-	"testing"
 	"go/token"
+	"testing"
 )
 
 func TestParsePackageFunc(t *testing.T) {
@@ -18,4 +18,3 @@ func TestParsePackageFunc(t *testing.T) {
 		t.Errorf("expected 2 files in result file set but found %d", fileCounter)
 	}
 }
-

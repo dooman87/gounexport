@@ -1,18 +1,3 @@
-//Package gounexport provides functionality to unexport unused public symbols.
-//
-//In detail, what you can do using this package:
-//
-//* parse package and get package's definition
-//
-//* get information about all definitions in packages
-//
-//* get unused packages
-//
-//* unexport unused definitions
-//
-//For result Definition struct is used. It's also includes Definition.Usage array
-//with all usages (internal and external) across the package.
-//
 package gounexport
 
 import (
@@ -126,4 +111,3 @@ func Unexport(def *Definition, allDefs map[string]*Definition,
 
 	return err
 }
-

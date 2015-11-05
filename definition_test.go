@@ -1,7 +1,8 @@
 package gounexport_test
+
 import (
 	"github.com/dooman87/gounexport"
-"testing"
+	"testing"
 )
 
 func TestGetDefinitionsFunc(t *testing.T) {
@@ -27,4 +28,3 @@ func TestGetDefinitionsUnimported(t *testing.T) {
 		t.Errorf("expected 1 exported definitions, but found %d", len(defs))
 	}
 }
-

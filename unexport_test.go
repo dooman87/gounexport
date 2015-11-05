@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/dooman87/gounexport/util"
 	"github.com/dooman87/gounexport"
+	"github.com/dooman87/gounexport/util"
 )
 
 func TestGetDefinitionsToHideFunc(t *testing.T) {

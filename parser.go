@@ -1,10 +1,11 @@
 package gounexport
+
 import (
-	"github.com/dooman87/gounexport/util"
 	"github.com/dooman87/gounexport/fs"
+	"github.com/dooman87/gounexport/importer"
+	"github.com/dooman87/gounexport/util"
 	"go/token"
 	"go/types"
-	"github.com/dooman87/gounexport/importer"
 )
 
 //ParsePackage parses package and filling info structure.
@@ -53,4 +54,3 @@ func ParsePackage(pkgName string, info *types.Info) (*types.Package, *token.File
 
 	return resultPkg, resultFset, nil
 }
-

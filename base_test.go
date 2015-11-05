@@ -1,10 +1,11 @@
 package gounexport_test
+
 import (
-	"testing"
-	"go/types"
-	"go/token"
-	"go/ast"
 	"github.com/dooman87/gounexport"
+	"go/ast"
+	"go/token"
+	"go/types"
+	"testing"
 )
 
 const (
