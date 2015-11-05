@@ -1,7 +1,10 @@
 # Gounexport #
 
-The tool is searching for exported symbols that is not used outside of the package and unexporting them by renaming to lowecase.
+Gounexport is a tool for finding exported symbols that is not used outside of the package and unexporting them by renaming to lowercase.
 
+By default, it's working in safe mode and only printing out result without renaming. Use -rename option to do actual renaming.
+
+```
 Usage: gounexport [OPTIONS] package
   -exclude string
         File with exlude patterns for objects that shouldn't be unexported. Each pattern should be started at new line. Default pattern is Test* to exclude tests methods.
@@ -11,6 +14,7 @@ Usage: gounexport [OPTIONS] package
         If set, then all defenitions that will be determined as unused will be renamed in files
   -verbose
         Turning on verbose mode
+```
 
 # History #
 
