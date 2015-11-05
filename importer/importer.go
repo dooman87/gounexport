@@ -68,7 +68,7 @@ func (_importer *CollectInfoImporter) Collect() (*types.Package, *token.FileSet,
 	var err error
 	var files []string
 
-	if files, err = fs.GetFiles(_importer.Pkg, false); err != nil {
+	if files, err = fs.SourceFiles(_importer.Pkg, false); err != nil {
 		return nil, nil, err
 	}
 	if _importer.fset, _importer.astFiles, err = doParseFiles(files, _importer.fset); err != nil {
@@ -125,7 +125,7 @@ func (_importer *CollectInfoImporter) doImport(path string, collectInfo bool) (*
 	conf.Importer = _importer
 	conf.Error = _importer.errorHandler
 
-	files, err := fs.GetFiles(path, false)
+	files, err := fs.SourceFiles(path, false)
 	if err != nil {
 		return nil, err
 	}

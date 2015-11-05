@@ -13,14 +13,14 @@ const (
 	pkg = "github.com/dooman87/gounexport/testdata"
 )
 
-func TestGetFilesDeep(t *testing.T) {
+func TestSourceFiles(t *testing.T) {
 	basepath := os.Getenv("GOPATH") + "/src/" + pkg
 	expected := []string{
 		basepath + "/testfunc/main/main.go",
 		basepath + "/testfunc/func.go",
 	}
 
-	files, err := GetFiles(pkg+"/testfunc", true)
+	files, err := SourceFiles(pkg+"/testfunc", true)
 	if err != nil {
 		t.Errorf("%v", err)
 	}
@@ -39,7 +39,7 @@ func TestGetFilesDeep(t *testing.T) {
 
 func TestGetUnusedSources(t *testing.T) {
 	fset := token.NewFileSet()
-	files, err := GetFiles(pkg, true)
+	files, err := SourceFiles(pkg, true)
 	if err != nil {
 		t.Errorf("%v", err)
 	}
@@ -89,7 +89,6 @@ func TestReplaceStringInFile(t *testing.T) {
    replace the first
 	 Replace word
 }`
-	//packagePath := GetPackagePath(os.Getenv("GOPATH") + "/src/github.com/dooman87/gounexport/testdata/testfunc/main/file.go")
 	file := os.Getenv("GOPATH") + "/src/github.com/dooman87/gounexport/testdata/testreplace.txt"
 	ioutil.WriteFile(file, []byte(original), 0)
 	ReplaceStringInFile(file, 16, "Replace", "replace")

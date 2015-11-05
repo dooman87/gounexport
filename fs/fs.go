@@ -19,7 +19,7 @@ import (
 //files from all subpackages as well.
 //It collects only files that name ends with .go extension.
 //Returns list of full file names.
-func GetFiles(pkg string, deep bool) ([]string, error) {
+func SourceFiles(pkg string, deep bool) ([]string, error) {
 	result, err := getSourceFiles(os.Getenv("GOPATH")+"/src/"+pkg, deep)
 	if err != nil {
 		result, err = getSourceFiles(os.Getenv("GOROOT")+"/src/"+pkg, deep)
@@ -75,7 +75,7 @@ func isValidSourceDir(dir string) bool {
 //GetUnusedSources returns list of source files in package that
 //are not presenting in the file set
 func GetUnusedSources(pkg string, fset *token.FileSet) ([]string, error) {
-	unusedSource, err := GetFiles(pkg, true)
+	unusedSource, err := SourceFiles(pkg, true)
 
 	if err != nil {
 		return nil, err
@@ -120,7 +120,12 @@ func GetRelativePath(path string) string {
 	return result
 }
 
-//ReplaceStringInFile replaces string in the file at the given offset
+//ReplaceStringInFile replaces string in the file at the given offset.
+//There are next steps to do that:
+// * Storing the content that starts after replacing string
+// * Truncate file from the offset
+// * Append new string
+// * Append rest of the file that was stored on the first step
 func ReplaceStringInFile(file string, offset int, from string, to string) error {
 	sourceFile, err := os.OpenFile(file, os.O_RDWR, 0)
 	if err != nil {
@@ -131,37 +136,33 @@ func ReplaceStringInFile(file string, offset int, from string, to string) error 
 	var restFile []byte
 	seekTo := offset + len(from)
 
+	defer sourceFile.Close()
+
 	if info, err = sourceFile.Stat(); err != nil {
-		goto closeAndReturn
+		return err
 	}
 
 	restFile = make([]byte, int(info.Size())-seekTo)
 	if _, err = sourceFile.Seek(int64(seekTo), 0); err != nil {
-		goto closeAndReturn
+		return err
 	}
 	if _, err = sourceFile.Read(restFile); err != nil {
-		goto closeAndReturn
+		return err
 	}
 	if err = sourceFile.Truncate(int64(offset)); err != nil {
-		goto closeAndReturn
+		return err
 	}
 	if _, err = sourceFile.Seek(int64(offset), 0); err != nil {
-		goto closeAndReturn
+		return err
 	}
 	if _, err = sourceFile.WriteString(to); err != nil {
-		goto closeAndReturn
+		return err
 	}
 	if _, err = sourceFile.Write(restFile); err != nil {
-		goto closeAndReturn
+		return err
 	}
 	if err = sourceFile.Close(); err != nil {
-		goto closeAndReturn
-	}
-
-closeAndReturn:
-	closeErr := sourceFile.Close()
-	if closeErr != nil && err == nil {
-		err = closeErr
+		return err
 	}
 
 	return err
