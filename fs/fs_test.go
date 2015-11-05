@@ -3,7 +3,6 @@ package fs
 import (
 	"go/token"
 	"io/ioutil"
-	"log"
 	"os"
 	"sort"
 	"strings"
@@ -15,7 +14,6 @@ const (
 )
 
 func TestGetFilesDeep(t *testing.T) {
-	log.Print("-----------------------TestGetFilesDeep-----------------------")
 	basepath := os.Getenv("GOPATH") + "/src/" + pkg
 	expected := []string{
 		basepath + "/testfunc/main/main.go",
@@ -40,8 +38,6 @@ func TestGetFilesDeep(t *testing.T) {
 }
 
 func TestGetUnusedSources(t *testing.T) {
-	log.Print("-----------------------TestGetUnusedSources-----------------------")
-
 	fset := token.NewFileSet()
 	files, err := GetFiles(pkg, true)
 	if err != nil {
@@ -67,7 +63,6 @@ func TestGetUnusedSources(t *testing.T) {
 }
 
 func TestGetPackagePathDir(t *testing.T) {
-	log.Print("-----------------------TestGetPackagePathDir-----------------------")
 	expected := "github.com/dooman87/gounexport/testdata/testfunc/main"
 	packagePath := GetPackagePath(os.Getenv("GOPATH") + "/src/github.com/dooman87/gounexport/testdata/testfunc/main")
 	if packagePath != expected {
@@ -76,7 +71,6 @@ func TestGetPackagePathDir(t *testing.T) {
 }
 
 func TestGetPackagePathFile(t *testing.T) {
-	log.Print("-----------------------TestGetPackagePathFile-----------------------")
 	expected := "github.com/dooman87/gounexport/testdata/testfunc/main"
 	packagePath := GetPackagePath(os.Getenv("GOPATH") + "/src/github.com/dooman87/gounexport/testdata/testfunc/main/file.go")
 	if packagePath != expected {
@@ -85,7 +79,6 @@ func TestGetPackagePathFile(t *testing.T) {
 }
 
 func TestReplaceStringInFile(t *testing.T) {
-	log.Print("-----------------------TestReplaceStringInFile-----------------------")
 	original :=
 		`We want to {
    Replace the first

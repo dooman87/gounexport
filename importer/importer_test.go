@@ -2,7 +2,6 @@ package importer
 
 import (
 	"go/ast"
-	"log"
 	"testing"
 
 	"go/token"
@@ -14,7 +13,6 @@ const (
 )
 
 func TestCollect(t *testing.T) {
-	log.Print("-----------------------TestCollect-----------------------")
 	info := types.Info{
 		Types: make(map[ast.Expr]types.TypeAndValue),
 		Defs:  make(map[*ast.Ident]types.Object),

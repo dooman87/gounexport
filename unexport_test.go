@@ -1,85 +1,24 @@
-package gounexport
+package gounexport_test
 
 import (
 	"go/ast"
-	"go/token"
 	"go/types"
 	"log"
 	"regexp"
 	"testing"
 
 	"github.com/dooman87/gounexport/util"
+	"github.com/dooman87/gounexport"
 )
 
-const (
-	pkg = "github.com/dooman87/gounexport/testdata"
-)
-
-func parsePackage(pkgStr string, t *testing.T) (*types.Package, *token.FileSet, *types.Info) {
-	info := types.Info{
-		Types: make(map[ast.Expr]types.TypeAndValue),
-		Defs:  make(map[*ast.Ident]types.Object),
-		Uses:  make(map[*ast.Ident]types.Object),
-	}
-
-	packag, fset, err := ParsePackage(pkgStr, &info)
-	if err != nil {
-		t.Errorf("error while parsing package %v", err)
-	}
-	return packag, fset, &info
-}
-
-func TestParsePackageFunc(t *testing.T) {
-	log.Print("-----------------------TestParsePackageFunc-----------------------")
-	_, fset, _ := parsePackage(pkg+"/testfunc", t)
-	fileCounter := 0
-	iterator := func(f *token.File) bool {
-		fileCounter++
-		return true
-	}
-	fset.Iterate(iterator)
-
-	if fileCounter != 2 {
-		t.Errorf("expected 2 files in result file set but found %d", fileCounter)
-	}
-}
-
-func TestGetDefinitionsFunc(t *testing.T) {
-	log.Print("-----------------------TestGetDefinitionsFunc-----------------------")
-	unimportedpkg := pkg + "/testfunc"
-
-	_, fset, info := parsePackage(unimportedpkg, t)
-	defs := GetDefinitions(info, fset)
-
-	//Used, Unused, main
-	if len(defs) != 3 {
-		t.Errorf("expected 3 exported definitions, but found %d", len(defs))
-	}
-}
-
-func TestGetDefenitionsUnimported(t *testing.T) {
-	log.Print("-----------------------TestGetDefenitionsUnimported-----------------------")
-	unimportedpkg := pkg + "/unimported"
-
-	_, fset, info := parsePackage(unimportedpkg, t)
-	defs := GetDefinitions(info, fset)
-
-	//NeverImported
-	if len(defs) != 1 {
-		t.Errorf("expected 1 exported definitions, but found %d", len(defs))
-	}
-}
-
-func TestGetDefenitionsToHideFunc(t *testing.T) {
-	log.Print("-----------------------TestGetDefenitionsToHideFunc-----------------------")
+func TestGetDefinitionsToHideFunc(t *testing.T) {
 	unimportedpkg := pkg + "/testfunc"
 	unusedDefs := getDefinitionsToHide(unimportedpkg, 1, t)
 
 	assertDef("github.com/dooman87/gounexport/testdata/testfunc.Unused", unusedDefs, t)
 }
 
-func TestGetDefenitionsToHideStruct(t *testing.T) {
-	log.Print("-----------------------TestGetDefenitionsToHideStruct-----------------------")
+func TestGetDefinitionsToHideStruct(t *testing.T) {
 	unimportedpkg := pkg + "/teststruct"
 	unusedDefs := getDefinitionsToHide(unimportedpkg, 4, t)
 
@@ -89,8 +28,7 @@ func TestGetDefenitionsToHideStruct(t *testing.T) {
 	assertDef("github.com/dooman87/gounexport/testdata/teststruct.UsedStruct.UsedInPackageMethod", unusedDefs, t)
 }
 
-func TestGetDefenitionsToHideVar(t *testing.T) {
-	log.Print("-----------------------TestGetDefenitionsToHideVar-----------------------")
+func TestGetDefinitionsToHideVar(t *testing.T) {
 	unimportedpkg := pkg + "/testvar"
 	unusedDefs := getDefinitionsToHide(unimportedpkg, 2, t)
 
@@ -98,30 +36,28 @@ func TestGetDefenitionsToHideVar(t *testing.T) {
 	assertDef("github.com/dooman87/gounexport/testdata/testvar.UnusedConst", unusedDefs, t)
 }
 
-func TestGetDefenitionsToHideInterface(t *testing.T) {
-	log.Print("-----------------------TestGetDefenitionsToHideInterface-----------------------")
+func TestGetDefinitionsToHideInterface(t *testing.T) {
 	unimportedpkg := pkg + "/testinterface"
 	unusedDefs := getDefinitionsToHide(unimportedpkg, 1, t)
 
 	assertDef("github.com/dooman87/gounexport/testdata/testinterface.UnusedInterface", unusedDefs, t)
 }
 
-func TestGetDefenitionsToHideExclusions(t *testing.T) {
-	log.Print("-----------------------TestGetDefenitionsToHideInterface-----------------------")
+func TestGetDefinitionsToHideExclusions(t *testing.T) {
 	unimportedpkg := pkg + "/testinterface"
 	regex, _ := regexp.Compile("Unused*")
 	excludes := []*regexp.Regexp{regex}
 	getDefinitionsToHideWithExclusions(unimportedpkg, 0, excludes, t)
 }
 
-func getDefinitionsToHide(pkg string, expectedLen int, t *testing.T) []*Definition {
+func getDefinitionsToHide(pkg string, expectedLen int, t *testing.T) []*gounexport.Definition {
 	return getDefinitionsToHideWithExclusions(pkg, expectedLen, nil, t)
 }
 
-func getDefinitionsToHideWithExclusions(pkg string, expectedLen int, excludes []*regexp.Regexp, t *testing.T) []*Definition {
+func getDefinitionsToHideWithExclusions(pkg string, expectedLen int, excludes []*regexp.Regexp, t *testing.T) []*gounexport.Definition {
 	_, fset, info := parsePackage(pkg, t)
-	defs := GetDefinitions(info, fset)
-	unusedDefs := GetDefenitionsToHide(pkg, defs, excludes)
+	defs := gounexport.GetDefinitions(info, fset)
+	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, excludes)
 
 	if expectedLen > 0 && len(unusedDefs) != expectedLen {
 		t.Errorf("expected %d unused exported definitions, but found %d", expectedLen, len(unusedDefs))
@@ -129,16 +65,15 @@ func getDefinitionsToHideWithExclusions(pkg string, expectedLen int, excludes []
 	return unusedDefs
 }
 
-func TestGetDefenitionsToHideThis(t *testing.T) {
-	log.Print("-----------------------TestGetDefenitionsToHideThis-----------------------")
+func TestGetDefinitionsToHideThis(t *testing.T) {
 	pkg := "github.com/dooman87/gounexport"
 
 	regex, _ := regexp.Compile("Test*")
 	excludes := []*regexp.Regexp{regex}
 
 	_, fset, info := parsePackage(pkg, t)
-	defs := GetDefinitions(info, fset)
-	unusedDefs := GetDefenitionsToHide(pkg, defs, excludes)
+	defs := gounexport.GetDefinitions(info, fset)
+	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, excludes)
 
 	log.Print("<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	for _, d := range unusedDefs {
@@ -147,8 +82,8 @@ func TestGetDefenitionsToHideThis(t *testing.T) {
 	}
 	log.Print("<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-	if len(unusedDefs) != 23 {
-		t.Errorf("expected %d unused exported definitions, but found %d", 23, len(unusedDefs))
+	if len(unusedDefs) != 22 {
+		t.Errorf("expected %d unused exported definitions, but found %d", 22, len(unusedDefs))
 	}
 }
 
@@ -174,22 +109,22 @@ func Example() {
 
 	//Parsing package to fill info struct and
 	//get file set.
-	_, fset, err := ParsePackage(pkg, &info)
+	_, fset, err := gounexport.ParsePackage(pkg, &info)
 	if err != nil {
 		util.Err("error while parsing package %v", err)
 	}
 
 	//Analyze info and extract all definitions with usages.
-	defs := GetDefinitions(&info, fset)
+	defs := gounexport.GetDefinitions(&info, fset)
 	//Find all definitions that not used
-	unusedDefs := GetDefenitionsToHide(pkg, defs, excludes)
+	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, excludes)
 	//Print all unused definition to stdout.
 	for _, d := range unusedDefs {
 		util.Info("DEFINITION %s", d.Name)
 	}
 }
 
-func assertDef(name string, defs []*Definition, t *testing.T) {
+func assertDef(name string, defs []*gounexport.Definition, t *testing.T) {
 	found := false
 	for _, d := range defs {
 		if name == d.Name {
@@ -199,14 +134,14 @@ func assertDef(name string, defs []*Definition, t *testing.T) {
 	}
 
 	if !found {
-		t.Errorf("expected [%s] in defenitions", name)
+		t.Errorf("expected [%s] in Definitions", name)
 	}
 }
 
 func TestUnexport(t *testing.T) {
 	_, fset, info := parsePackage(pkg+"/testrename", t)
-	defs := GetDefinitions(info, fset)
-	unusedDefs := GetDefenitionsToHide(pkg, defs, nil)
+	defs := gounexport.GetDefinitions(info, fset)
+	unusedDefs := gounexport.GetDefinitionsToHide(pkg, defs, nil)
 
 	renamesCount := make(map[string]int)
 	renameFunc := func(file string, offset int, source string, target string) error {
@@ -216,7 +151,7 @@ func TestUnexport(t *testing.T) {
 	}
 
 	for _, d := range unusedDefs {
-		err := Unexport(d, defs, renameFunc)
+		err := gounexport.Unexport(d, defs, renameFunc)
 		if d.SimpleName == "UnusedStructConflict" && err == nil {
 			t.Error("expected conflict error for UnusedStructConflict")
 		}

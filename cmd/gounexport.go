@@ -163,7 +163,7 @@ func getUnusedDefinitions(pkg string, excludes []*regexp.Regexp) (
 		return nil, nil, err
 	}
 	defs := gounexport.GetDefinitions(&info, fset)
-	return gounexport.GetDefenitionsToHide(pkg, defs, excludes), defs, nil
+	return gounexport.GetDefinitionsToHide(pkg, defs, excludes), defs, nil
 }
 
 func printDefinitions(filename string, defs []*gounexport.Definition) error {

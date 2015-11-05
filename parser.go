@@ -8,8 +8,8 @@ import (
 )
 
 //ParsePackage parses package and filling info structure.
-//It's will fill info about all internal packages if they
-//are not used in the root package.
+//It's filling info about all internal packages even if they
+//are not imported in the root package.
 func ParsePackage(pkgName string, info *types.Info) (*types.Package, *token.FileSet, error) {
 	collectImporter := new(importer.CollectInfoImporter)
 	collectImporter.Info = info
